@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <script type="text/javascript" src="js/jquery-3.4.1.js"></script>
+    <style type="text/css">
+        .box{
+            display: inline-block;
+            padding: 30px;
+        }
+        li{
+            list-style: none;
+        }
+        .hotel-list{
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            // console.log(123) 
+           $.ajax({
+                    type:'get',
+                    url:'php/getCountryList.php',
+                    dataType:'json',
+                    success:function(res){
+                        if(res.code == 1){
+                            //获取到数据
+                            $('.country-select').empty();
+                            var str =  ``;
+                            for(var i = 0;i < res.data.length;i++){
+                                str += `<option value=` + res.data[i].iso+ `>`+res.data[i].country+`</option>`
+                            }
+                            $('.country-select').append(str);
+                        }else{
+                            alert(res.msg)
+                        }
+                    }
+            })
+
+            $(".country-select").change(function(){
+
+                var id=$(this).val();
+                $.ajax({
+                    type:'get',
+                    url:'php/getHolidayList.php',
+                    data:{id:id},
+                    dataType:'json',
+                    success:function(res){
+                        if(res.code == 1){
+                            //获取到数据
+                            $('.holiday-select').empty();
+                            var str =  ``;
+                            for(var i = 0;i < res.data.length;i++){
+                                str += `<option value=` + res.data[i].id+ `>`+res.data[i].name+`</option>`
+                            }
+                            $('.holiday-select').append(str);
+                        }else{
+                            alert(res.msg)
+                        }
+                    }
+                })
+
+
+                $.ajax({
+                    type:'get',
+                    url:'php/getAreaList.php',
+                    data:{country:id},
+                    dataType:'json',
+                    success:function(res){
+                        if(res.code == 1){
+                            //获取到数据
+                            $('.area-select').empty();
+                            var str =  ``;
+                            for(var i = 0;i < res.data.length;i++){
+                                str += `<option value=` + res.data[i].name+ `>`+res.data[i].name+`</option>`
+                            }
+                            $('.area-select').append(str);
+                        }else{
+                            alert(res.msg)
+                        }
+                    }
+                })
+            })
+
+
+            $(".area-select").change(function(){
+
+                var id=$(this).val();
+                $.ajax({
+                    type:'get',
+                    url:'php/getWeather.php',
+                    data:{area:id},
+                    dataType:'json',
+                    success:function(res){
+                        if(res.code == 1){
+                            //获取到数据
+                            $('.area-item').empty();
+                            $('.area-item').append(res.data.area_name);
+                            $('.high-item').empty();
+                            $('.high-item').append(res.data.high);
+                            $('.low-item').empty();
+                            $('.low-item').append(res.data.low);
+                            $('.rain-item').empty();
+                            $('.rain-item').append(res.data.rain);
+                        }else{
+                            alert(res.msg)
+                        }
+                    }
+                })
+
+            })
+
+
+
+            $(".day-select").change(function(){
+
+                var id=$(this).val();
+                var area = $('.area-select').val()
+                if (area == 0) {
+                    alert('Please select a area')
+                    return
+                }
+                $.ajax({
+                    type:'get',
+                    url:'php/getHotelList.php',
+                    data:{area:area,id:id},
+                    dataType:'json',
+                    success:function(res){
+                        if(res.code == 1){
+                            //获取到数据
+                            $('.hotel-list').empty();
+                            var str =  ``;
+                            for(var i = 0;i < res.data.length;i++){
+                                // str += `<li><h2>`+res.data[i].name+`</h2>    price: $`+res.data[i].pirce+`</li>`
+
+                                str += `<li><div>hotel name: <span>`+res.data[i].name+`</span></div>
+                                            hotel rent: <select>
+                                                <option>$`+res.data[i].price+` per day</option>
+                                                <option>$`+res.data[i].three_price+` for three days</option>
+                                                <option>$`+res.data[i].five_price+` for five days</option>
+                                            </select>
+                                        </li>`
+                            }
+                            $('.hotel-list').append(str);
+                        }else{
+                            alert(res.msg)
+                        }
+                    }
+                })
+
+            })
+
+        });
+
+    </script>
+</head>
+<body>
+    <div class="project">
+        <div class="box">
+            <div class="country">
+                <span>Select Country:</span>
+                <select  class ="country-select">
+
+                </select>
+            </div>
+
+            <div class="holiday">
+                <span>The Holiday list:</span>
+                <select  class ="holiday-select">
+                    <option value=0>holidy list</option>
+                </select>
+            </div>
+
+
+            <div class="area">
+                <span>Select Area:</span>
+                <select  class ="area-select">
+                    <option value=0>area list</option>
+                </select>
+            </div>
+
+            <div>
+                <h1><span class="area-item"></span> Weather:</h1>
+                <p>High: <span class="high-item"></span>°C</p>
+                <p>Low:<span class="low-item"></span>°C</p>
+                <p>Chance of Rain: <span class="rain-item"></span>%</p>
+            </div>
+
+            <div class="day">
+                <span>Select day::</span>
+                <select  class ="day-select">
+                    <option value="2023-05-05">2023-05-05</option>
+                    <option value="2023-05-06">2023-05-06</option>
+                    <option value="2023-05-07">2023-05-07</option>
+                    <option value="2023-05-08">2023-05-08</option>
+                    <option value="2023-05-09">2023-05-09</option>
+                </select>
+            </div>
+
+            <div>
+                
+                <ul class="hotel-list">
+<!--                     <li><div>hotel name: <span>Hotel1</span></div>
+                        hotel rent: <select>
+                            <option>$100 per day</option>
+                            <option>$300 for three days</option>
+                            <option>$500 for five days</option>
+                        </select>
+                    </li>
+                    <li><div>hotel name: <span>Hotel2</span></div>
+                        hotel rent: <select>
+                            <option>$100 per day</option>
+                            <option>$300 for three days</option>
+                            <option>$500 for five days</option>
+                        </select>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
